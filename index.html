@@ -128,21 +128,32 @@
   .gift-list li:last-child{ border-bottom:none; }
   .gift-list li::before{ content:"♡"; color:var(--rose-deep); font-size:.85rem; margin-right:.2rem; }
   .gift-name{ flex:1; }
-  .gift-list li.claimed{ opacity:.5; }
-  .gift-list li.claimed .gift-name{ text-decoration:line-through; }
+  .gift-list li.claimed{ opacity:.85; }
+  .gift-list li.claimed .gift-name{ text-decoration:line-through; opacity:.6; }
+  .claimed-info{ display:flex; align-items:center; gap:.5rem; }
   .claimed-by{ font-size:.72rem; font-style:italic; color:var(--rose-deep); white-space:nowrap; }
-  .claim-btn{
+  
+  .claim-btn, .confirm-btn{
     background:none; border:1px solid var(--sage-deep); color:var(--sage-deep);
     padding:.35rem .8rem; border-radius:100px; font-size:.72rem; font-weight:700;
     cursor:pointer; white-space:nowrap; transition:background .2s,color .2s;
   }
-  .claim-btn:hover{ background:var(--sage-deep); color:var(--cream); }
+  .claim-btn:hover, .confirm-btn:hover{ background:var(--sage-deep); color:var(--cream); }
+
   .unclaim-btn{
     background:none; border:1px solid var(--rose-deep); color:var(--rose-deep);
-    padding:.35rem .8rem; border-radius:100px; font-size:.72rem; font-weight:700;
-    cursor:pointer; white-space:nowrap; transition:background .2s,color .2s;
+    width:22px; height:22px; border-radius:50%; font-size:.75rem; font-weight:700;
+    cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+    padding:0; line-height:1; transition:background .2s, color .2s;
   }
   .unclaim-btn:hover{ background:var(--rose-deep); color:var(--cream); }
+
+  .claim-form{ display:flex; align-items:center; justify-content:flex-end; gap:.5rem; width:100%; }
+  .cancel-btn{
+    background:none; border:none; color:var(--ink); opacity:.5;
+    font-size:.72rem; cursor:pointer; text-decoration:underline; padding:.35rem .4rem;
+  }
+  .cancel-btn:hover{ opacity:1; }
 
   footer{ text-align:center; font-size:.8rem; color:var(--ink); opacity:.55; padding-bottom:3rem; }
 </style>
@@ -239,12 +250,14 @@
   var SUPABASE_KEY = 'sb_publishable_0_8wN4wdR1P8-DON4jE4rw_HLZ4FssS';
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  /* ---- Admit ticket: personalized per family via ?family=code in the URL ---- */
+  /* ---- Admit ticket & active family name tracking ---- */
   var ticketTitle = document.getElementById('ticketTitle');
   var ticketFamily = document.getElementById('ticketFamily');
   var COUNT_WORDS = {1:'One',2:'Two',3:'Three',4:'Four',5:'Five',6:'Six'};
+  var currentFamilyName = 'Our Guests';
 
   function renderFamily(name, count){
+    currentFamilyName = name;
     ticketFamily.textContent = name;
     ticketTitle.textContent = 'Admit ' + (COUNT_WORDS[count] || count);
   }
@@ -253,14 +266,17 @@
   if (familyCode){
     sb.from('families').select('family_name,admit_count').eq('code', familyCode).maybeSingle()
       .then(function(res){
-        if (res.data) renderFamily(res.data.family_name, res.data.admit_count);
-        else renderFamily('Our Guests', 2);
+        if (res.data && res.data.family_name) {
+          renderFamily(res.data.family_name, res.data.admit_count);
+        } else {
+          renderFamily('Our Guests', 2);
+        }
       });
   } else {
     renderFamily('Our Guests', 2);
   }
 
-  /* ---- Gift registry: shared list stored in Supabase, claim once, updates live ---- */
+  /* ---- Gift registry with live updates, unclaim button, and family confirmation ---- */
   var giftList = document.getElementById('giftList');
   var gifts = [];
 
@@ -276,10 +292,24 @@
       li.appendChild(name);
 
       if (g.claimed_by){
+        var container = document.createElement('div');
+        container.className = 'claimed-info';
+
         var by = document.createElement('span');
         by.className = 'claimed-by';
         by.textContent = 'Claimed by ' + g.claimed_by;
-        li.appendChild(by);
+        container.appendChild(by);
+
+        var unclaimBtn = document.createElement('button');
+        unclaimBtn.className = 'unclaim-btn';
+        unclaimBtn.type = 'button';
+        unclaimBtn.title = 'Unclaim gift';
+        unclaimBtn.setAttribute('aria-label', 'Unclaim gift');
+        unclaimBtn.textContent = '✕';
+        unclaimBtn.addEventListener('click', function(){ unclaimGift(g.id); });
+        container.appendChild(unclaimBtn);
+
+        li.appendChild(container);
       } else {
         var btn = document.createElement('button');
         btn.className = 'claim-btn';
@@ -292,20 +322,57 @@
     });
   }
 
+  function unclaimGift(id){
+    sb.from('gifts')
+      .update({ claimed_by: null, claimed_at: null })
+      .eq('id', id)
+      .select()
+      .then(function(res){
+        if (res.data && res.data.length){
+          var idx = gifts.findIndex(function(g){ return g.id === id; });
+          if (idx > -1) gifts[idx] = res.data[0];
+          renderGifts();
+        } else {
+          loadGifts();
+        }
+      });
+  }
+
   function showClaimForm(id, li){
+    var nameSpan = li.querySelector('.gift-name');
+    var originalName = nameSpan ? nameSpan.textContent : '';
+
     li.innerHTML = '';
+
+    var name = document.createElement('span');
+    name.className = 'gift-name';
+    name.textContent = originalName;
+    li.appendChild(name);
+
     var form = document.createElement('form');
     form.className = 'claim-form';
-    form.innerHTML = '<input type="text" placeholder="Your name" maxlength="60" required><button type="submit">Confirm</button>';
+
+    var cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'cancel-btn';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.addEventListener('click', function(){ renderGifts(); });
+
+    var confirmBtn = document.createElement('button');
+    confirmBtn.type = 'submit';
+    confirmBtn.className = 'confirm-btn';
+    confirmBtn.textContent = 'Confirm as ' + currentFamilyName;
+
+    form.appendChild(cancelBtn);
+    form.appendChild(confirmBtn);
     li.appendChild(form);
-    form.querySelector('input').focus();
+
     form.addEventListener('submit', function(e){
       e.preventDefault();
-      var claimant = form.querySelector('input').value.trim();
-      if (!claimant) return;
       sb.from('gifts')
-        .update({ claimed_by: claimant, claimed_at: new Date().toISOString() })
-        .eq('id', id).is('claimed_by', null)
+        .update({ claimed_by: currentFamilyName, claimed_at: new Date().toISOString() })
+        .eq('id', id)
+        .is('claimed_by', null)
         .select()
         .then(function(res){
           if (res.data && res.data.length){
@@ -313,7 +380,7 @@
             if (idx > -1) gifts[idx] = res.data[0];
             renderGifts();
           } else {
-            loadGifts(); // someone else claimed it first — refresh from the server
+            loadGifts();
           }
         });
     });
