@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mecaela & Coleman — You're Invited</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💌</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;1,600&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sage:#9CAF88; --sage-deep:#748B62; --rose:#E3B4AD; --rose-deep:#C98A82;
+    --plum:#8A5A54; --cream:#FAF6EF; --ink:#3E3B32;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{background:var(--cream); color:var(--ink); font-family:'Nunito',sans-serif; overflow-x:hidden;}
+  @media (prefers-reduced-motion:reduce){ *{transition-duration:.001ms!important;} }
+
+  /* ---- small envelope-card scene ---- */
+  .scene-spacer{ height:320vh; position:relative; }
+  .scene-sticky{
+    position:sticky; top:0; height:100vh; width:100%;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+  .prompt{
+    position:absolute; bottom:7%; left:50%; transform:translateX(-50%);
+    font-size:.78rem; font-weight:800; letter-spacing:.12em; color:var(--ink);
+    opacity:.75; text-align:center;
+  }
+  .prompt svg{ display:block; margin:8px auto 0; animation:bob 1.6s ease-in-out infinite; }
+  @keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(6px);} }
+
+  .envelope-wrap{ position:relative; width:min(86vw,420px); aspect-ratio:1.42/1; perspective:1600px; }
+  .envelope-body{
+    position:absolute; inset:0; border-radius:6px;
+    background:linear-gradient(180deg, var(--sage), var(--sage-deep));
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.4);
+  }
+  .envelope-body::before{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(135deg, rgba(255,255,255,.12), transparent 55%);
+    clip-path:polygon(0 0,50% 46%,0 100%);
+  }
+  .envelope-body::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(225deg, rgba(0,0,0,.1), transparent 55%);
+    clip-path:polygon(100% 0,50% 46%,100% 100%);
+  }
+  .letter{
+    position:absolute; left:6%; right:6%; top:8%; bottom:8%;
+    background:var(--cream); border-radius:2px;
+    box-shadow:0 10px 25px rgba(0,0,0,.2), inset 0 0 0 1px var(--rose);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:8%; will-change:transform;
+  }
+  .letter .eyebrow{ font-size:.68rem; letter-spacing:.2em; color:var(--rose-deep); margin-bottom:.6em; font-weight:800; }
+  .letter h1{
+    font-family:'Fraunces',serif; font-weight:600; font-style:italic;
+    font-size:clamp(1.6rem,6vw,2.3rem); line-height:1.15; color:var(--ink);
+  }
+  .letter p.sub{ margin-top:.7em; font-size:.85rem; color:var(--ink); opacity:.7; }
+  .flap{
+    position:absolute; left:0; right:0; top:0; height:52%;
+    background:linear-gradient(180deg, var(--rose-deep), var(--rose));
+    clip-path:polygon(0 0,100% 0,50% 100%);
+    transform-origin:top center; will-change:transform; z-index:5;
+    box-shadow:0 4px 10px rgba(0,0,0,.15);
+  }
+  .seal{
+    position:absolute; left:50%; top:38%; width:15%; aspect-ratio:1; transform:translate(-50%,-50%);
+    background:radial-gradient(circle at 35% 30%, #a8716a, var(--plum) 70%);
+    border-radius:50%; z-index:6; box-shadow:0 3px 8px rgba(0,0,0,.35);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces',serif; font-style:italic; color:var(--cream); font-size:.85rem;
+    will-change:transform,opacity;
+  }
+  .front-panel{ position:absolute; inset:0; top:auto; height:60%; bottom:0; background:var(--sage-deep); border-radius:0 0 6px 6px; z-index:4; }
+
+  /* ---- content below ---- */
+  .content{ position:relative; z-index:1; max-width:640px; margin:0 auto; padding:4rem 1.5rem 3rem; text-align:center; }
+  .headline{ font-family:'Fraunces',serif; font-weight:600; font-style:italic; font-size:clamp(2.6rem,10vw,4.5rem); line-height:1; }
+  .headline .accent{ color:var(--rose-deep); }
+  .names{ margin-top:1.4rem; font-family:'Fraunces',serif; font-size:clamp(1.6rem,5vw,2.2rem); }
+  .amp{ color:var(--sage-deep); }
+  .dots{ display:flex; justify-content:center; gap:10px; margin:2rem 0; }
+  .dots span{ width:10px; height:10px; border-radius:50%; }
+  .dots span:nth-child(1){background:var(--sage);} .dots span:nth-child(2){background:var(--rose);}
+  .dots span:nth-child(3){background:var(--rose-deep);} .dots span:nth-child(4){background:var(--sage-deep);}
+  .when{ font-size:1.2rem; font-weight:600; }
+  .where{ margin-top:.6rem; color:var(--ink); opacity:.75; line-height:1.6; }
+  .rsvp{
+    display:inline-block; margin-top:2.4rem; padding:1rem 2.6rem; background:var(--plum);
+    color:var(--cream); text-decoration:none; font-weight:800; border-radius:100px; font-size:.9rem;
+    letter-spacing:.03em; transition:transform .2s, background .2s;
+  }
+  .rsvp:hover{ background:var(--ink); transform:translateY(-2px); }
+  .rsvp:focus-visible{ outline:3px solid var(--sage); outline-offset:3px; }
+
+  .section-divider{ display:flex; justify-content:center; gap:10px; margin:1rem 0 3.5rem; }
+  .section-divider span{ width:6px; height:6px; border-radius:50%; background:var(--rose-deep); opacity:.6; }
+
+  .ticket{
+    position:relative; max-width:380px; margin:0 auto 4.5rem; padding:2.2rem 1.5rem;
+    background:var(--cream); border:2px dashed var(--sage-deep); border-radius:16px;
+  }
+  .ticket::before,.ticket::after{
+    content:""; position:absolute; top:50%; transform:translateY(-50%);
+    width:24px; height:24px; border-radius:50%; background:var(--cream); box-shadow:0 0 0 2px var(--cream);
+  }
+  .ticket::before{ left:-14px; } .ticket::after{ right:-14px; }
+  .ticket .kicker{ font-size:.72rem; letter-spacing:.2em; color:var(--sage-deep); font-weight:800; }
+  .ticket-title{ font-family:'Fraunces',serif; font-style:italic; font-weight:600; font-size:2.4rem; margin-top:.4rem; }
+  .ticket-sub{ margin-top:.5rem; font-size:.9rem; opacity:.7; }
+  .ticket-line{ margin-top:1.4rem; padding-top:1.2rem; border-top:1px dashed var(--sage-deep); font-size:.85rem; opacity:.75; }
+
+  .gift{ max-width:640px; margin:0 auto; padding:0 1.5rem 4rem; text-align:center; }
+  .gift .kicker{ font-size:.72rem; letter-spacing:.2em; color:var(--rose-deep); font-weight:800; }
+  .gift p{ max-width:420px; margin:.8rem auto 0; opacity:.8; line-height:1.7; font-size:.95rem; }
+  .gift-list{ list-style:none; max-width:420px; margin:1.8rem auto 0; text-align:left; }
+  .gift-list li{
+    padding:.85rem 0; border-bottom:1px dashed var(--sage-deep); font-size:.95rem;
+    display:flex; align-items:center; justify-content:space-between; gap:.8rem;
+  }
+  .gift-list li:last-child{ border-bottom:none; }
+  .gift-list li::before{ content:"♡"; color:var(--rose-deep); font-size:.85rem; margin-right:.2rem; }
+  .gift-name{ flex:1; }
+  .gift-list li.claimed{ opacity:.5; }
+  .gift-list li.claimed .gift-name{ text-decoration:line-through; }
+  .claimed-by{ font-size:.72rem; font-style:italic; color:var(--rose-deep); white-space:nowrap; }
+  .claim-btn{
+    background:none; border:1px solid var(--sage-deep); color:var(--sage-deep);
+    padding:.35rem .8rem; border-radius:100px; font-size:.72rem; font-weight:700;
+    cursor:pointer; white-space:nowrap; transition:background .2s,color .2s;
+  }
+  .claim-btn:hover{ background:var(--sage-deep); color:var(--cream); }
+  .claim-form{ display:flex; gap:.5rem; width:100%; }
+  .claim-form input{ flex:1; min-width:0; padding:.4rem .6rem; border:1px solid var(--sage-deep); border-radius:6px; font-family:inherit; font-size:.85rem; }
+  .claim-form button{ background:var(--plum); color:var(--cream); border:none; padding:.4rem .9rem; border-radius:6px; cursor:pointer; font-size:.78rem; font-weight:700; }
+
+  footer{ text-align:center; font-size:.8rem; color:var(--ink); opacity:.55; padding-bottom:3rem; }
+</style>
+</head>
+<body>
+
+<div class="scene-spacer" id="spacer">
+  <div class="scene-sticky">
+    <div class="envelope-wrap" id="envelopeWrap">
+      <div class="envelope-body"></div>
+      <div class="letter" id="letter">
+        <div class="eyebrow">Together with their families</div>
+        <h1>You are<br>invited</h1>
+        <p class="sub">Mecaela Fredericks &amp; Coleman Alexander<br>are getting married</p>
+      </div>
+      <div class="front-panel"></div>
+      <div class="seal" id="seal">M&amp;C</div>
+      <div class="flap" id="flap"></div>
+    </div>
+    <div class="prompt" id="hint">SCROLL TO OPEN
+      <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 1l6 7 6-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+  </div>
+</div>
+
+<section class="content">
+  <p class="headline">You're <span class="accent">Invited!</span></p>
+  <p class="names">Mecaela <span class="amp">&amp;</span> Coleman</p>
+  <div class="dots"><span></span><span></span><span></span><span></span></div>
+  <p class="when">Friday, November 27th, 2026 · 4:00 PM</p>
+  <p class="where">Protestante Verenigde Kerk<br>20 Boston St, Ravensmead, Cape Town</p>
+  <a class="rsvp" href="mailto:rsvp@example.com?subject=RSVP%20-%20Mecaela%20%26%20Coleman">RSVP by Oct 31st</a>
+</section>
+
+<div class="section-divider"><span></span><span></span><span></span></div>
+
+<section class="ticket">
+  <div class="kicker">Admit</div>
+  <div class="ticket-title" id="ticketTitle">Two Guests</div>
+  <div class="ticket-sub">Reserved seating &middot; Garden ceremony</div>
+  <div class="ticket-line">Kindly reserved for<br><strong id="ticketFamily">Our Guests</strong></div>
+</section>
+
+<section class="gift">
+  <div class="kicker">Gifts</div>
+  <p>Your presence at our wedding is the greatest gift of all. If you'd like to bring something, here's what we could use — once someone claims it, it's off the list for everyone else.</p>
+  <ul class="gift-list" id="giftList">
+    <li style="opacity:.5; justify-content:center;">Loading gifts…</li>
+  </ul>
+</section>
+
+<footer>We can't wait to celebrate with you 💛</footer>
+
+<script>
+(function(){
+  var spacer=document.getElementById('spacer');
+  var flap=document.getElementById('flap');
+  var letter=document.getElementById('letter');
+  var seal=document.getElementById('seal');
+  var hint=document.getElementById('hint');
+  var wrap=document.getElementById('envelopeWrap');
+
+  function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+
+  function update(){
+    var total=spacer.offsetHeight-window.innerHeight;
+    var p=clamp(total>0? -spacer.getBoundingClientRect().top/total:0, 0, 1);
+
+    var sealP=clamp(p/0.18,0,1);
+    seal.style.opacity=String(1-sealP);
+    seal.style.transform='translate(-50%,'+(-50-sealP*40)+'%) scale('+(1-sealP*0.4)+')';
+
+    var flapP=clamp((p-0.1)/0.35,0,1);
+    flap.style.transform='rotateX('+(flapP*-178)+'deg)';
+
+    var letterP=clamp((p-0.35)/0.5,0,1);
+    letter.style.transform='translateY('+(-letterP*78)+'%) scale('+(1+letterP*0.06)+')';
+    letter.style.zIndex = letterP>0.05 ? 20 : 3;
+
+    hint.style.opacity=String(1-clamp(p/0.12,0,1));
+    wrap.style.opacity=String(1-clamp((p-0.9)/0.1,0,1));
+  }
+
+  document.addEventListener('scroll', update, {passive:true});
+  window.addEventListener('resize', update);
+  update();
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var SUPABASE_URL = 'https://ukgukestvkokogbnwytz.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_0_8wN4wdR1P8-DON4jE4rw_HLZ4FssS';
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  /* ---- Admit ticket: personalized per family via ?family=code in the URL ---- */
+  var ticketTitle = document.getElementById('ticketTitle');
+  var ticketFamily = document.getElementById('ticketFamily');
+  var COUNT_WORDS = {1:'One',2:'Two',3:'Three',4:'Four',5:'Five',6:'Six'};
+
+  function renderFamily(name, count){
+    ticketFamily.textContent = name;
+    ticketTitle.textContent = 'Admit ' + (COUNT_WORDS[count] || count);
+  }
+
+  var familyCode = new URLSearchParams(window.location.search).get('family');
+  if (familyCode){
+    sb.from('families').select('family_name,admit_count').eq('code', familyCode).maybeSingle()
+      .then(function(res){
+        if (res.data) renderFamily(res.data.family_name, res.data.admit_count);
+        else renderFamily('Our Guests', 2);
+      });
+  } else {
+    renderFamily('Our Guests', 2);
+  }
+
+  /* ---- Gift registry: shared list stored in Supabase, claim once, updates live ---- */
+  var giftList = document.getElementById('giftList');
+  var gifts = [];
+
+  function renderGifts(){
+    giftList.innerHTML = '';
+    gifts.forEach(function(g){
+      var li = document.createElement('li');
+      if (g.claimed_by) li.className = 'claimed';
+
+      var name = document.createElement('span');
+      name.className = 'gift-name';
+      name.textContent = g.name;
+      li.appendChild(name);
+
+      if (g.claimed_by){
+        var by = document.createElement('span');
+        by.className = 'claimed-by';
+        by.textContent = 'Claimed by ' + g.claimed_by;
+        li.appendChild(by);
+      } else {
+        var btn = document.createElement('button');
+        btn.className = 'claim-btn';
+        btn.type = 'button';
+        btn.textContent = "I'll bring this";
+        btn.addEventListener('click', function(){ showClaimForm(g.id, li); });
+        li.appendChild(btn);
+      }
+      giftList.appendChild(li);
+    });
+  }
+
+  function showClaimForm(id, li){
+    li.innerHTML = '';
+    var form = document.createElement('form');
+    form.className = 'claim-form';
+    form.innerHTML = '<input type="text" placeholder="Your name" maxlength="60" required><button type="submit">Confirm</button>';
+    li.appendChild(form);
+    form.querySelector('input').focus();
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var claimant = form.querySelector('input').value.trim();
+      if (!claimant) return;
+      sb.from('gifts')
+        .update({ claimed_by: claimant, claimed_at: new Date().toISOString() })
+        .eq('id', id).is('claimed_by', null)
+        .select()
+        .then(function(res){
+          if (res.data && res.data.length){
+            var idx = gifts.findIndex(function(g){ return g.id === id; });
+            if (idx > -1) gifts[idx] = res.data[0];
+            renderGifts();
+          } else {
+            loadGifts(); // someone else claimed it first — refresh from the server
+          }
+        });
+    });
+  }
+
+  function loadGifts(){
+    sb.from('gifts').select('*').order('sort_order').then(function(res){
+      gifts = res.data || [];
+      renderGifts();
+    });
+  }
+  loadGifts();
+
+  sb.channel('gifts-live')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'gifts' }, function(){ loadGifts(); })
+    .subscribe();
+})();
+</script>
+</body>
+</html>
