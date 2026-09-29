@@ -100,6 +100,11 @@
   }
   .rsvp:hover{ background:var(--ink); transform:translateY(-2px); }
   .rsvp:focus-visible{ outline:3px solid var(--sage); outline-offset:3px; }
+  .rsvp.confirmed{
+    background:var(--sage-deep);
+    pointer-events:none;
+    cursor:default;
+  }
 
   .section-divider{ display:flex; justify-content:center; gap:10px; margin:1rem 0 3.5rem; }
   .section-divider span{ width:6px; height:6px; border-radius:50%; background:var(--rose-deep); opacity:.6; }
@@ -165,7 +170,7 @@
   <div class="dots"><span></span><span></span><span></span><span></span></div>
   <p class="when">Friday, November 27th, 2026 · 4:00 PM</p>
   <p class="where">Protestante Verenigde Kerk<br>20 Boston St, Ravensmead, Cape Town</p>
-  <a class="rsvp" href="https://wa.me/27622719187?text=Hi!%20I'd%20like%20to%20RSVP%20for%20Mecaela%20%26%20Coleman's%20wedding." target="_blank" rel="noopener">Click to RSVP by Oct 31st</a>
+  <a class="rsvp" id="rsvpBtn" href="https://wa.me/27622719187?text=Hi!%20I'd%20like%20to%20RSVP%20for%20Mecaela%20%26%20Coleman's%20wedding." target="_blank" rel="noopener">Click to RSVP by Oct 31st</a>
 </section>
 
 <div class="section-divider"><span></span><span></span><span></span></div>
@@ -244,25 +249,32 @@
   /* ---- Admit ticket & active family name tracking ---- */
   var ticketTitle = document.getElementById('ticketTitle');
   var ticketFamily = document.getElementById('ticketFamily');
+  var rsvpBtn = document.getElementById('rsvpBtn');
   var COUNT_WORDS = {1:'One',2:'Two',3:'Three',4:'Four',5:'Five',6:'Six',7:'Seven',8:'Eight'};
 
-  function renderFamily(name, count){
+  function renderFamily(name, count, isRsvped){
     ticketFamily.textContent = name;
     ticketTitle.textContent = 'Admit ' + (COUNT_WORDS[count] || count);
+
+    if (isRsvped === true) {
+      rsvpBtn.textContent = 'Thank you for RSVPing! ✨';
+      rsvpBtn.classList.add('confirmed');
+      rsvpBtn.removeAttribute('href');
+    }
   }
 
   var familyCode = new URLSearchParams(window.location.search).get('family');
   if (familyCode){
-    sb.from('families').select('family_name,admit_count').eq('code', familyCode).maybeSingle()
+    sb.from('families').select('family_name,admit_count,rsvp').eq('code', familyCode).maybeSingle()
       .then(function(res){
         if (res.data && res.data.family_name) {
-          renderFamily(res.data.family_name, res.data.admit_count);
+          renderFamily(res.data.family_name, res.data.admit_count, res.data.rsvp);
         } else {
-          renderFamily('Our Guests', 2);
+          renderFamily('Our Guests', 2, false);
         }
       });
   } else {
-    renderFamily('Our Guests', 2);
+    renderFamily('Our Guests', 2, false);
   }
 })();
 </script>
