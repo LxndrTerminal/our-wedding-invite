@@ -17,6 +17,7 @@
     padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
   }
   *{margin:0;padding:0;box-sizing:border-box;}
+  [hidden]{display:none!important;}
   html{scroll-padding-top:env(safe-area-inset-top,0px);}
   body{background:var(--cream); color:var(--ink); font-family:'Nunito',sans-serif; overflow-x:hidden;}
   @media (prefers-reduced-motion:reduce){ *{transition-duration:.001ms!important;} }
@@ -141,9 +142,31 @@
   .gift p{ max-width:420px; margin:.8rem auto 0; opacity:.8; line-height:1.7; font-size:.95rem; }
 
   footer{ text-align:center; font-size:.8rem; color:var(--ink); opacity:.55; padding-bottom:3rem; }
+
+  /* ---- 404 / error state ---- */
+  .not-found{
+    min-height:100vh; padding:2rem 1.5rem;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+  }
+  .not-found .code{
+    font-family:'Fraunces',serif; font-style:italic; font-weight:600;
+    font-size:clamp(5rem,28vw,9rem); line-height:1; color:var(--rose-deep);
+  }
+  .not-found h1{ font-family:'Fraunces',serif; font-style:italic; font-weight:600; font-size:clamp(1.5rem,6vw,2rem); margin-top:.4rem; }
+  .not-found p{ max-width:380px; margin-top:.9rem; opacity:.75; line-height:1.7; font-size:.95rem; }
+  .not-found .rsvp{ margin-top:2rem; }
 </style>
 </head>
 <body>
+
+<main class="not-found" id="notFound" hidden>
+  <div class="code">404</div>
+  <h1 id="nfTitle">Invitation not found</h1>
+  <p id="nfText">We couldn't find an invitation for this link. Please check that you opened the full link you were sent, or message us and we'll help.</p>
+  <a class="rsvp" href="https://wa.me/27622719187?text=Hi!%20My%20invitation%20link%20to%20Mecaela%20%26%20Coleman's%20wedding%20isn't%20working." target="_blank" rel="noopener">Message us on WhatsApp</a>
+</main>
+
+<div id="invite" hidden>
 
 <div class="scene-spacer" id="spacer">
   <div class="scene-sticky">
@@ -203,6 +226,8 @@
 
 <footer>We can't wait to celebrate with you 💛</footer>
 
+</div><!-- /#invite -->
+
 <script>
 (function(){
   var spacer=document.getElementById('spacer');
@@ -246,11 +271,26 @@
   var SUPABASE_KEY = 'sb_publishable_0_8wN4wdR1P8-DON4jE4rw_HLZ4FssS';
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  /* ---- Admit ticket & active family name tracking ---- */
+  var invite = document.getElementById('invite');
+  var notFound = document.getElementById('notFound');
   var ticketTitle = document.getElementById('ticketTitle');
   var ticketFamily = document.getElementById('ticketFamily');
   var rsvpBtn = document.getElementById('rsvpBtn');
   var COUNT_WORDS = {1:'One',2:'Two',3:'Three',4:'Four',5:'Five',6:'Six',7:'Seven',8:'Eight'};
+
+  function showNotFound(){
+    document.title = 'Invitation not found';
+    notFound.hidden = false;
+    invite.hidden = true;
+  }
+
+  function showLoadError(){
+    document.title = 'Something went wrong';
+    document.getElementById('nfTitle').textContent = "Couldn't load your invitation";
+    document.getElementById('nfText').textContent = 'Please check your internet connection and refresh the page. If it keeps happening, message us.';
+    notFound.hidden = false;
+    invite.hidden = true;
+  }
 
   function renderFamily(name, count, isRsvped){
     ticketFamily.textContent = name;
@@ -261,21 +301,29 @@
       rsvpBtn.classList.add('confirmed');
       rsvpBtn.removeAttribute('href');
     }
+
+    invite.hidden = false;
+    window.dispatchEvent(new Event('resize')); // re-run envelope scroll maths now the page is visible
   }
 
-  var familyCode = new URLSearchParams(window.location.search).get('family');
-  if (familyCode){
-    sb.from('families').select('family_name,admit_count,rsvp').eq('code', familyCode).maybeSingle()
-      .then(function(res){
-        if (res.data && res.data.family_name) {
-          renderFamily(res.data.family_name, res.data.admit_count, res.data.rsvp);
-        } else {
-          renderFamily('Our Guests', 2, false);
-        }
-      });
-  } else {
-    renderFamily('Our Guests', 2, false);
+  var familyCode = (new URLSearchParams(window.location.search).get('family') || '').trim();
+
+  if (!familyCode){
+    showNotFound();
+    return;
   }
+
+  sb.from('families').select('family_name,admit_count,rsvp').eq('code', familyCode).maybeSingle()
+    .then(function(res){
+      if (res.error){
+        showLoadError();
+      } else if (res.data && res.data.family_name){
+        renderFamily(res.data.family_name.trim(), res.data.admit_count, res.data.rsvp);
+      } else {
+        showNotFound();
+      }
+    })
+    .catch(showLoadError);
 })();
 </script>
 </body>
