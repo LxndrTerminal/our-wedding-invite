@@ -143,27 +143,22 @@
 
   footer{ text-align:center; font-size:.8rem; color:var(--ink); opacity:.55; padding-bottom:3rem; }
 
-  /* ---- 404 / error state ---- */
+  /* ---- 404 / error state (deliberately generic, no wedding branding) ---- */
+  body.is-404{ background:#fff; color:#000; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
   .not-found{
     min-height:100vh; padding:2rem 1.5rem;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    display:flex; flex-direction:row; align-items:center; justify-content:center; flex-wrap:wrap; gap:0 1.25rem;
+    text-align:left;
   }
-  .not-found .code{
-    font-family:'Fraunces',serif; font-style:italic; font-weight:600;
-    font-size:clamp(5rem,28vw,9rem); line-height:1; color:var(--rose-deep);
-  }
-  .not-found h1{ font-family:'Fraunces',serif; font-style:italic; font-weight:600; font-size:clamp(1.5rem,6vw,2rem); margin-top:.4rem; }
-  .not-found p{ max-width:380px; margin-top:.9rem; opacity:.75; line-height:1.7; font-size:.95rem; }
-  .not-found .rsvp{ margin-top:2rem; }
+  .not-found h1{ font-size:1.5rem; font-weight:500; padding-right:1.25rem; border-right:1px solid rgba(0,0,0,.3); line-height:3rem; }
+  .not-found p{ font-size:.9rem; line-height:3rem; margin:0; }
 </style>
 </head>
 <body>
 
 <main class="not-found" id="notFound" hidden>
-  <div class="code">404</div>
-  <h1 id="nfTitle">Invitation not found</h1>
-  <p id="nfText">We couldn't find an invitation for this link. Please check that you opened the full link you were sent, or message us and we'll help.</p>
-  <a class="rsvp" href="https://wa.me/27622719187?text=Hi!%20My%20invitation%20link%20to%20Mecaela%20%26%20Coleman's%20wedding%20isn't%20working." target="_blank" rel="noopener">Message us on WhatsApp</a>
+  <h1 id="nfTitle">404</h1>
+  <p id="nfText">This page could not be found.</p>
 </main>
 
 <div id="invite" hidden>
@@ -278,18 +273,24 @@
   var rsvpBtn = document.getElementById('rsvpBtn');
   var COUNT_WORDS = {1:'One',2:'Two',3:'Three',4:'Four',5:'Five',6:'Six',7:'Seven',8:'Eight'};
 
-  function showNotFound(){
-    document.title = 'Invitation not found';
+  function neutralise(){
+    // drop the invitation from the page entirely and strip the wedding favicon/title
+    if (invite.parentNode) invite.parentNode.removeChild(invite);
+    document.body.classList.add('is-404');
+    document.querySelectorAll('link[rel="icon"]').forEach(function(l){ l.parentNode.removeChild(l); });
     notFound.hidden = false;
-    invite.hidden = true;
+  }
+
+  function showNotFound(){
+    document.title = '404: This page could not be found';
+    neutralise();
   }
 
   function showLoadError(){
-    document.title = 'Something went wrong';
-    document.getElementById('nfTitle').textContent = "Couldn't load your invitation";
-    document.getElementById('nfText').textContent = 'Please check your internet connection and refresh the page. If it keeps happening, message us.';
-    notFound.hidden = false;
-    invite.hidden = true;
+    document.title = 'Error';
+    document.getElementById('nfTitle').textContent = 'Error';
+    document.getElementById('nfText').textContent = 'Something went wrong. Please refresh the page and try again.';
+    neutralise();
   }
 
   function renderFamily(name, count, isRsvped){
